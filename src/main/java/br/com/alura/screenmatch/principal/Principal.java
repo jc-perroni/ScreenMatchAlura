@@ -1,14 +1,13 @@
 package br.com.alura.screenmatch.principal;
 
-import br.com.alura.screenmatch.model.Categoria;
-import br.com.alura.screenmatch.model.DadosSerie;
-import br.com.alura.screenmatch.model.DadosTemporada;
-import br.com.alura.screenmatch.model.Episodio;
+import br.com.alura.screenmatch.model.*;
 import br.com.alura.screenmatch.service.ConsumoApi;
 import br.com.alura.screenmatch.service.ConverteDados;
+import org.springframework.stereotype.Controller;
 
 import java.util.*;
-import java.util.stream.Collectors;
+
+@Controller
 
 public class Principal {
 
@@ -36,7 +35,7 @@ public class Principal {
                 switch (opcao) {
                     case 1 -> buscarSerieWeb();
                     case 2 -> buscarEpisodioPorSerie();
-                    case 3 -> listarSeries();
+                    case 3 -> listarSeriesBuscadas();
                     case 0 -> System.out.println("Saindo...");
                     default -> System.out.println("Opção inválida");
                 }
@@ -49,21 +48,13 @@ public class Principal {
 
     private void buscarSerieWeb() {
         DadosSerie dados = getDadosSerie();
-        dadosSeries.add(dados);
-        System.out.println(dados.titulo() + " incluída.");
-    }
-
-    private void listarSeries(){
-        dadosSeries.forEach(x -> {
-                    System.out.println("Nome da série: " + x.titulo());
-                    System.out.println("Nota: " + x.avaliacao());
-                    System.out.println("Total de temporadas: " + x.totalTemporadas());
-                    System.out.println("Genero: " + x.genero());
-                    System.out.println("Atores: " + x.atores());
-                    System.out.println("Pôster: " + x.poster());
-                    System.out.println("Sinopse: " + x.sinopse());
-                    System.out.println();
-                });
+        if (dados.titulo() != null) {
+            dadosSeries.add(dados);
+            System.out.println(dados.titulo() + " incluída.");
+        }
+        else {
+            System.out.println("Série não encontrada no catálogo.");
+        }
     }
 
     private DadosSerie getDadosSerie() {
@@ -86,13 +77,17 @@ public class Principal {
         temporadas.forEach(System.out::println);
     }
 
-    public static Categoria fromString(String text) {
-        for (Categoria categoria : Categoria.values()) {
-            if (categoria.equalsIgnoreCase(text)) {
-                return categoria;
-            }
-        }
-        throw new IllegalArgumentException("Nenhuma categoria encontrada para a string fornecida: " + text);
+    private void listarSeriesBuscadas(){
+
+        List<Serie> series;
+        series = dadosSeries.stream()
+                        .map(Serie::new)
+                                .toList();
+
+        series.stream()
+                .sorted(Comparator.comparing(Serie::getGenero))
+                .forEach(System.out::println);
+
     }
 
 }

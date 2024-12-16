@@ -1,11 +1,12 @@
 package br.com.alura.screenmatch.model;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
+import br.com.alura.screenmatch.service.traducao.ConsultaChatGpt;
+import br.com.alura.screenmatch.service.traducao.ConsultaMyMemory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.util.OptionalDouble;
-
+@EntityScan
 public class Serie {
 
     private String title;
@@ -16,6 +17,9 @@ public class Serie {
     private String poster;
     private String sinopse;
 
+    @Autowired
+    public ConsultaChatGpt consulta;
+
     public Serie(DadosSerie dadosSerie) {
         this.title = dadosSerie.titulo();
         this.totalTemporadas = dadosSerie.totalTemporadas();
@@ -23,7 +27,17 @@ public class Serie {
         this.genero = Categoria.fromString(dadosSerie.genero().split(",")[0].trim());
         this.atores = dadosSerie.atores();
         this.poster = dadosSerie.poster();
-        this.sinopse = dadosSerie.sinopse();
+        try {
+            System.out.println("Traduzindo a sinopse: ");
+            System.out.println(dadosSerie.sinopse());
+            this.sinopse = consulta.obterTraducao(dadosSerie.sinopse()).trim();
+        }
+        catch (Exception e){
+            System.out.println("Não foi possível traduzir a sinopse usando chatgpt.");
+            System.out.println("Problem -> " + e.getCause());
+            System.out.println("A aplicação usará a API ConsultaMyMemory...");
+            this.sinopse = ConsultaMyMemory.obterTraducao(dadosSerie.sinopse()).trim();
+        }
     }
 
     public String getTitle() {
@@ -80,5 +94,18 @@ public class Serie {
 
     public void setSinopse(String sinopse) {
         this.sinopse = sinopse;
+    }
+
+    @Override
+    public String toString() {
+        return
+                "genero= " + genero +
+                "title= " + title + '\'' +
+                ", totalTemporadas= " + totalTemporadas +
+                ", avaliacao= " + avaliacao +
+                ", atores= " + atores + '\'' +
+                ", poster= " + poster + '\'' +
+                ", sinopse= " + sinopse + '\'' +
+                '}';
     }
 }

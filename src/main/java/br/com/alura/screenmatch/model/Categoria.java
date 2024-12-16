@@ -6,7 +6,8 @@ public enum Categoria {
     ROMANCE("Romance"),
     COMEDIA("Comedy"),
     DRAMA("Drama"),
-    CRIME("Crime");
+    CRIME("Crime"),
+    INDEFINIDO("Not Found");
 
     private final String categoriaOMDB;
 
@@ -19,7 +20,9 @@ public enum Categoria {
             if (categoria.categoriaOMDB.equalsIgnoreCase(text)) {
                 return categoria;
             }
+
         }
-        throw new IllegalArgumentException("Nenhuma categoria encontrada para o gênero retornado.");
-    }}
+        return INDEFINIDO;
+    }
+}
 
